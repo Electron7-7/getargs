@@ -77,19 +77,19 @@ export BUILD_OBJS ?= $(BUILD_DIR)/$(DIR_OBJS)
 
 export NAME ?= $(STATIC_NAME)
 
-VPATH := $(SRC_DIRS)
+VPATH := $(SRC_DIR)
 
 SRC := src
 
-SRC_DIRS := $(SRC)/argument_parser
+SRC_DIR := $(SRC)/getargs
 
-CC_SRCS  := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
-CXX_SRCS := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
+CC_SRCS  := $(foreach directory,$(SRC_DIR),$(wildcard $(directory)/*.c))
+CXX_SRCS := $(foreach directory,$(SRC_DIR),$(wildcard $(directory)/*.cpp))
 
 export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(SRC)/%=%)))
 export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(SRC)/%=%)))
 
-BINARY_SRC_DIR := $(SRC)/example_main
+BINARY_SRC_DIR := $(SRC)/example
 
 BINARY_SRCS := $(foreach directory,$(BINARY_SRC_DIR),$(wildcard $(directory)/*.cpp))
 BINARY_OBJS := $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(BINARY_SRCS:$(SRC)/%=%)))
@@ -116,17 +116,10 @@ build:
 	@ printf "$(DEFAULT)::Static Library Building Command - $(YELLOW)$(AR_BUILDER) cr $(RESET)\n"
 	@ printf "$(DEFAULT)::Dynamic Library Building Command - $(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(LD_FLAGS)$(RESET)\n"
 	@ $(MAKE) -s $(BUILD_DIR)/$(NAME)
-	@ printf "$(DEFAULT)::Program Location - $(GREEN)$(DIR_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)/$(NAME)$(RESET)\n"
 
-static_example:
+example:
 	$(eval NAME = $(BINARY_NAME))
-	@ printf "$(DEFAULT)::Building Example - $(BLUE)$(BUILD_DIR)/$(NAME)$(RESET)\n"
-
-dynamic_example:
-	$(eval NAME = $(BINARY_NAME))
-	@ printf "$(DEFAULT)::Building Example - $(BLUE)$(BUILD_DIR)/$(NAME)$(RESET)\n"
-	$(CXX_COMPILER) $(CXX_FLAGS) $(INCLUDE) $(SRC)/example_main/dedicated_main.cpp -o $(BUILD_DIR)/$(NAME) -L $(BUILD_DIR) -l$(NAME_BASE)
-	@ printf "$(DEFAULT)[NOTE] You'll have to copy $(GREEN)$(DYNAMIC_NAME)$(DEFAULT) to $(BLUE)/usr/lib$(DEFAULT) for the app to be able to use the library$(RESET)\n"
+	@ $(MAKE) -B -s build
 
 static: ;@:
 	$(eval FLAGS_CXX_COMMON = -std=c++20)
@@ -201,15 +194,17 @@ $(BUILD_OBJS)/%.o: $(SRC)/%.c | build_dir
 	$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(INCLUDE) -c $< -o $@
 
 # Dynamic Library
-$(BUILD_DIR)/$(DYNAMIC_NAME): $(CC_OBJS) $(CXX_OBJS)
+$(BUILD_DIR)/$(DYNAMIC_NAME): $(CC_OBJS) $(CXX_OBJS) | build_dir
 	@ printf "::Building $(CYAN)$@$(RESET)\n"
+	@ printf "$(DEFAULT)[NOTE] You'll have to copy $(GREEN)$(DYNAMIC_NAME)$(DEFAULT) to $(BLUE)/usr/lib$(DEFAULT) to be able to use the library$(RESET)\n"
 	$(CXX_COMPILER) $(CXX_FLAGS) $(DYNAMIC_FLAGS) $^ -o $@ $(LD_FLAGS)
 
 # Static Library
-$(BUILD_DIR)/$(STATIC_NAME): $(CC_OBJS) $(CXX_OBJS)
+$(BUILD_DIR)/$(STATIC_NAME): $(CC_OBJS) $(CXX_OBJS) | build_dir
 	@ printf "::Building $(CYAN)$@$(RESET)\n"
 	$(AR_BUILDER) cr $@ $^
 
 # Example Binary
-$(BUILD_DIR)/$(BINARY_NAME): $(SRC)/example_main/dedicated_main.cpp
+$(BUILD_DIR)/$(BINARY_NAME): $(BINARY_SRCS) | build_dir
+	@ printf "::Compiling & Linking $(BLUE)$@$(RESET)\n"
 	$(CXX_COMPILER) $(CXX_FLAGS) $(INCLUDE) $< -o $(BUILD_DIR)/$(NAME) -L $(BUILD_DIR) -l$(NAME_BASE)
