@@ -37,6 +37,6 @@ R"(    Usage: getargs [-h|--help] [-v|--version] [--some-option|-o [<some_argume
         getargs --special-option "required argument"
 )";
 
-constexpr const char* _Version_Printout = "getargs v1.0.0";
+constexpr const char* _Version_Printout = "getargs v1.0.1";
 
 #endif // ARGUMENTS_H
