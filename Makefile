@@ -35,6 +35,7 @@ DIR_WINDOWS := Windows
 DIR_STATIC  := Static
 DIR_DYNAMIC := Dynamic
 DIR_OBJS    := .objs
+DIR_HEADERS := include
 
 NAME_BASE := getargs
 
@@ -74,6 +75,7 @@ export VERSION_FLAGS ?= $(RELEASE_FLAGS)
 
 export BUILD_DIR  ?= $(DIR_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
 export BUILD_OBJS ?= $(BUILD_DIR)/$(DIR_OBJS)
+export BUILD_HEADERS ?= $(DIR_ROOT)/$(DIR_HEADERS)/$(NAME_BASE)
 
 export NAME ?= $(STATIC_NAME)
 
@@ -83,11 +85,11 @@ SRC := src
 
 SRC_DIR := $(SRC)/getargs
 
-CC_SRCS  := $(foreach directory,$(SRC_DIR),$(wildcard $(directory)/*.c))
-CXX_SRCS := $(foreach directory,$(SRC_DIR),$(wildcard $(directory)/*.cpp))
+SRCS := $(foreach directory,$(SRC_DIR),$(wildcard $(directory)/*.cpp))
+OBJS := $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(SRCS:$(SRC)/%=%)))
 
-export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(SRC)/%=%)))
-export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(SRC)/%=%)))
+HEADERS := $(foreach directory,$(SRC_DIR),$(wildcard $(directory)/*.hpp))
+HEADERS_OUT := $(HEADERS:$(SRC_DIR)/%=$(BUILD_HEADERS)/%)
 
 BINARY_SRC_DIR := $(SRC)/example
 
@@ -105,9 +107,9 @@ export CYAN    ?= \\x1b[1;36m
 export WHITE   ?= \\x1b[1;37m
 export DEFAULT ?= \\x1b[1;39m
 
-.PHONY: build static_example dynamic_example static dynamic linux windows build_dir clean disable_colors
+.PHONY: build static_example dynamic_example headers static dynamic linux windows build_dir clean disable_colors
 
-build:
+build: headers
 	@ printf "$(DEFAULT)::Architecture - $(BLUE)$(BUILD_ARCH)$(RESET)\n"
 	@ printf "$(DEFAULT)::Version - $(BLUE)$(BUILD_VERSION)$(RESET)\n"
 	@ printf "$(DEFAULT)::Target Binary - $(BLUE)$(BUILD_DIR)/$(NAME)$(RESET)\n"
@@ -116,6 +118,10 @@ build:
 	@ printf "$(DEFAULT)::Static Library Building Command - $(YELLOW)$(AR_BUILDER) cr $(RESET)\n"
 	@ printf "$(DEFAULT)::Dynamic Library Building Command - $(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(LD_FLAGS)$(RESET)\n"
 	@ $(MAKE) -s $(BUILD_DIR)/$(NAME)
+
+headers:
+	@ $(MAKE) -s $(HEADERS_OUT)
+	@ printf "$(DEFAULT)::Library Headers Copied to $(BLUE)$(BUILD_HEADERS)$(RESET)\n"
 
 example:
 	$(eval NAME = $(BINARY_NAME))
@@ -181,26 +187,26 @@ disable_colors:
 	$(eval DEFAULT := "")
 	@ printf "::Output colors disabled\n"
 
+# Header Files
+$(BUILD_HEADERS)/%.hpp: $(SRC_DIR)/%.hpp | build_dir
+	@ printf "$(DEFAULT)::Copying Header File Into $(GREEN)$@$(RESET)\n"
+	@ -mkdir -p $(dir $@)
+	@ cp $< $@
+
 # C++ Object Files
 $(BUILD_OBJS)/%.obj: $(SRC)/%.cpp | build_dir
 	@ printf "::Compiling $(BLUE)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) -c $< -o $@
 
-# C Object Files (unused)
-$(BUILD_OBJS)/%.o: $(SRC)/%.c | build_dir
-	@ printf "::Compiling $(BLUE)$@$(RESET)\n"
-	@ -mkdir -p $(dir $@)
-	$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(INCLUDE) -c $< -o $@
-
 # Dynamic Library
-$(BUILD_DIR)/$(DYNAMIC_NAME): $(CC_OBJS) $(CXX_OBJS) | build_dir
+$(BUILD_DIR)/$(DYNAMIC_NAME): $(OBJS) | build_dir
 	@ printf "::Building $(CYAN)$@$(RESET)\n"
 	@ printf "$(DEFAULT)[NOTE] You'll have to copy $(GREEN)$(DYNAMIC_NAME)$(DEFAULT) to $(BLUE)/usr/lib$(DEFAULT) to be able to use the library$(RESET)\n"
 	$(CXX_COMPILER) $(CXX_FLAGS) $(DYNAMIC_FLAGS) $^ -o $@ $(LD_FLAGS)
 
 # Static Library
-$(BUILD_DIR)/$(STATIC_NAME): $(CC_OBJS) $(CXX_OBJS) | build_dir
+$(BUILD_DIR)/$(STATIC_NAME): $(OBJS) | build_dir
 	@ printf "::Building $(CYAN)$@$(RESET)\n"
 	$(AR_BUILDER) cr $@ $^
 
