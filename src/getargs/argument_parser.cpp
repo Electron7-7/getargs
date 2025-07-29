@@ -1,5 +1,7 @@
 #include "argument_parser.hpp"
 
+#include <string>
+
 ArgumentParser static_ArgumentParser;
 ArgumentParser* global_ArgumentParser = &static_ArgumentParser;
 
@@ -47,10 +49,13 @@ int ArgumentParser::ParseArguments(int argc, char** argv)
             {
                 index_of_positional_arguments++;
 
-                if((i+1) >= argc)
+                if((i+1) >= argc || std::string(argv[i+1]).starts_with("-")) // No argument was given to this option (end of array OR next item is most likely another flag/option)
                 {
                     if(_options.at(i_o)->IsOptionMandatory())
+                    {
+                        printf("\x1b[1;31m[ERROR] getargs - Option '%s' requires a value and was given none!\n", _options.at(i_o)->PrettyName());
                         return ARG_STATUS_FAILED;
+                    }
                     _options.at(i_o)->SetValue("");
                     break;
                 }
