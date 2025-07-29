@@ -35,6 +35,10 @@ public:
     : _Arg(CopyFrom._long_name, CopyFrom._short_name)
     {}
 
+    constexpr _Arg(const char* Name)
+    : _Arg(Name, Name)
+    {}
+
     constexpr bool IsActive() const { return _active; }
     constexpr const char* LongName()  const { return _long_name;  }
     constexpr const char* ShortName() const { return _short_name; }
@@ -93,6 +97,10 @@ public:
 
     constexpr Option(const Option& CopyFrom)
     : _Arg(CopyFrom._long_name, CopyFrom._short_name), _value(CopyFrom._value), _is_option_mandatory(CopyFrom._is_option_mandatory)
+    {}
+
+    constexpr Option(const char* Name, bool IsOptionMandatory = false)
+    : Option(Name, Name, IsOptionMandatory)
     {}
 
     void SetValue(const char* Value)
