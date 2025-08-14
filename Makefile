@@ -75,7 +75,7 @@ export VERSION_FLAGS ?= $(RELEASE_FLAGS)
 
 export BUILD_DIR  ?= $(DIR_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
 export BUILD_OBJS ?= $(BUILD_DIR)/$(DIR_OBJS)
-export BUILD_HEADERS ?= $(DIR_ROOT)/$(DIR_HEADERS)/$(NAME_BASE)
+export BUILD_HEADERS ?= $(BUILD_DIR)/$(DIR_HEADERS)/$(NAME_BASE)
 
 export NAME ?= $(STATIC_NAME)
 
@@ -86,15 +86,15 @@ SRC := src
 SRC_DIR := $(SRC)/getargs
 
 SRCS := $(foreach directory,$(SRC_DIR),$(wildcard $(directory)/*.cpp))
-OBJS := $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(SRCS:$(SRC)/%=%)))
+export OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(SRCS:$(SRC)/%=%)))
 
 HEADERS := $(foreach directory,$(SRC_DIR),$(wildcard $(directory)/*.hpp))
-HEADERS_OUT := $(HEADERS:$(SRC_DIR)/%=$(BUILD_HEADERS)/%)
+export HEADERS_OUT ?= $(HEADERS:$(SRC_DIR)/%=$(BUILD_HEADERS)/%)
 
 BINARY_SRC_DIR := $(SRC)/example
 
 BINARY_SRCS := $(foreach directory,$(BINARY_SRC_DIR),$(wildcard $(directory)/*.cpp))
-BINARY_OBJS := $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(BINARY_SRCS:$(SRC)/%=%)))
+export BINARY_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(BINARY_SRCS:$(SRC)/%=%)))
 
 export RESET   ?= \\x1b[0m
 export BLACK   ?= \\x1b[1;30m
@@ -168,7 +168,7 @@ windows: ;@:
 	$(eval DYNAMIC_FLAGS = $(DYNAMIC_FLAGS_WINDOWS))
 
 build_dir:
-	@ -mkdir -p $(BUILD_DIR) $(BUILD_OBJS)
+	@ -mkdir -p $(BUILD_DIR)
 
 clean:
 	@ -rm -rf $(DIR_ROOT)
