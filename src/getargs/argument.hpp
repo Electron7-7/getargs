@@ -79,17 +79,17 @@ public:
     constexpr Option(const char* Name, bool IsOptionMandatory = false)
     : Option(Name, Name, IsOptionMandatory)
     {}
+    void Activate();
+    void Deactivate();
 
     void SetValue(const char* Value)
     {
         _value = Value;
-        _active = true;
     }
 
     void EraseValue()
     {
         _value = "";
-        _active = false;
     }
 
     bool HasValue() const { return (!CompareStrings(_value, "")); } // FIXME: Kind of redundant, since I can just check that 'GetValue' isn't an empty string...
