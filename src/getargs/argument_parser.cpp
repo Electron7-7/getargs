@@ -11,8 +11,7 @@ std::vector<Flag*> ArgumentParser::_flags = {};
 void ArgumentParser::AddOption(Option* new_option)
 {
     for(Option* added_option : _options)
-        if(added_option == new_option)
-            return;
+    { if(added_option == new_option) { return; } }
 
     _options.insert(_options.end(), new_option);
 }
@@ -20,8 +19,7 @@ void ArgumentParser::AddOption(Option* new_option)
 void ArgumentParser::AddFlag(Flag* new_flag)
 {
     for(Flag* added_flag : _flags)
-        if(added_flag == new_flag)
-            return;
+    { if(added_flag == new_flag) { return; } }
 
     _flags.insert(_flags.end(), new_flag);
 }
@@ -57,10 +55,12 @@ int ArgumentParser::ParseArguments(int argc, char** argv)
                         return ARG_STATUS_FAILED;
                     }
                     _options.at(i_o)->SetValue("");
+                    _options.at(i_o)->Activate();
                     break;
                 }
 
                 _options.at(i_o)->SetValue(argv[++i]);
+                _options.at(i_o)->Activate();
                 break;
             }
         }
