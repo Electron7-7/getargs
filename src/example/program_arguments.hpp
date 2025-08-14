@@ -5,22 +5,22 @@
 
 namespace Flags
 {
-    static Flag Help    ("--help"    , "-h");
-    static Flag Version ("--version" , "-v");
+    inline Flag Help    ("--help"    , "-h");
+    inline Flag Version ("--version" , "-v");
 
     // Flags & Options don't need both long & short names
-    // static Flag OnlyShortFlag("-f");
-    // static Flag OnlyLongFlag("--only-long-flag");
+    // inline Flag OnlyShortFlag("-f");
+    // inline Flag OnlyLongFlag("--only-long-flag");
 }
 
 namespace Options
 {
-    static Option SomeOption("--some-option", "-o");
-    static Option SomeOptionThatRequiresAValue("--special-option", "-s", true);
+    inline Option SomeOption("--some-option", "-o");
+    inline Option SomeOptionThatRequiresAValue("--special-option", "-s", true);
 
     // Flags & Options don't need both long & short names
-    // static Option OnlyShortOption("-s");
-    // static Option OnlyLongOption("--only-long-option");
+    // inline Option OnlyShortOption("-s");
+    // inline Option OnlyLongOption("--only-long-option");
 }
 
 constexpr const char* _Help_Printout =
