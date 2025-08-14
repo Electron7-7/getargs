@@ -9,8 +9,8 @@ namespace Flags
     inline Flag Version ("--version" , "-v");
 
     // Flags & Options don't need both long & short names
-    // inline Flag OnlyShortFlag("-f");
-    // inline Flag OnlyLongFlag("--only-long-flag");
+    inline Flag OnlyShortFlag("-f");
+    inline Flag OnlyLongFlag("--only-long-flag");
 }
 
 namespace Options
@@ -19,8 +19,8 @@ namespace Options
     inline Option SomeOptionThatRequiresAValue("--special-option", "-s", true);
 
     // Flags & Options don't need both long & short names
-    // inline Option OnlyShortOption("-s");
-    // inline Option OnlyLongOption("--only-long-option");
+    inline Option OnlyShortOption("-s");
+    inline Option OnlyLongOption("--only-long-option");
 }
 
 constexpr const char* _Help_Printout =
@@ -37,6 +37,6 @@ R"(    Usage: getargs [-h|--help] [-v|--version] [--some-option|-o [<some_argume
         getargs --special-option "required argument"
 )";
 
-constexpr const char* _Version_Printout = "getargs v1.0.1";
+constexpr const char* _Version_Printout = "getargs v1.1.1";
 
 #endif // ARGUMENTS_H
