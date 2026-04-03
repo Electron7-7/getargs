@@ -1,5 +1,5 @@
 # getargs
-A simple C++ header-only library for easily parsing command line arguments.
+A simple C++ header-only library for easily parsing command line arguments. Querying the version can be done via three pre-processor definitions: `GETARGS_VERSION_MAJOR`, `GETARGS_VERSION_MINOR`, and `GETARGS_VERSION_PATCH`.
 
 ## Index
 - [Function Reference](#function-reference)
