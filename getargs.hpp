@@ -6,7 +6,7 @@
 
 #define GETARGS_VERSION_MAJOR 2
 #define GETARGS_VERSION_MINOR 2
-#define GETARGS_VERSION_PATCH 0
+#define GETARGS_VERSION_PATCH 1
 
 #ifdef GETARGS_IMPLEMENTATION
 
@@ -299,8 +299,8 @@ namespace GETARGS_NAMESPACE
     { return __hidden::bad_arg; }
 #endif // GETARGS_HANDLE_INVALID_ARGS
 
-    static bool get_flag(const GETARGS_STRING_t& inFlag)
-    { return __hidden::flags.contains(inFlag); }
+    static bool get_flag(const GETARGS_STRING_t& inFlag, const GETARGS_STRING_t& inFlagAlt = "")
+    { return __hidden::flags.contains(inFlag) or __hidden::flags.contains(inFlagAlt); }
 
     static bool get_option(const GETARGS_STRING_t& inOption, GETARGS_STRING_t& outValue)
     {
