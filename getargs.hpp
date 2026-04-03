@@ -5,8 +5,8 @@
 #define GETARGS_HEADER_GUARD
 
 #define GETARGS_VERSION_MAJOR 2
-#define GETARGS_VERSION_MINOR 2
-#define GETARGS_VERSION_PATCH 1
+#define GETARGS_VERSION_MINOR 3
+#define GETARGS_VERSION_PATCH 0
 
 #ifdef GETARGS_IMPLEMENTATION
 
@@ -163,6 +163,16 @@ namespace GETARGS_NAMESPACE
             return parsed_args;
         }
 
+        static GETARGS_STRING_t get_raw_flag(const GETARGS_STRING_t& inFlag)
+        {
+            if(inFlag.size() < 2)
+                { return inFlag; }
+            int index{0};
+            for(int i{0}; i < 2; ++i)
+                { if(inFlag[i] == '-') { ++index; } }
+            return inFlag.substr(index);
+        }
+
 #ifdef GETARGS_HANDLE_INVALID_ARGS
         static bool is_valid(const std::string& inArg)
         { return __hidden::valid_args.contains(inArg); }
@@ -300,7 +310,10 @@ namespace GETARGS_NAMESPACE
 #endif // GETARGS_HANDLE_INVALID_ARGS
 
     static bool get_flag(const GETARGS_STRING_t& inFlag, const GETARGS_STRING_t& inFlagAlt = "")
-    { return __hidden::flags.contains(inFlag) or __hidden::flags.contains(inFlagAlt); }
+    {
+        return __hidden::flags.contains(__hidden::get_raw_flag(inFlag)) or
+            __hidden::flags.contains(__hidden::get_raw_flag(inFlagAlt));
+    }
 
     static bool get_option(const GETARGS_STRING_t& inOption, GETARGS_STRING_t& outValue)
     {
