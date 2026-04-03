@@ -112,7 +112,7 @@
 
 namespace GETARGS_NAMESPACE
 {
-    enum Status : int { INVALID_ARGUMENT, HELP_CALLED, VERSION_CALLED };
+    enum Status : int { INVALID_ARGUMENT=1, HELP_CALLED=2, VERSION_CALLED=3 };
 
     namespace __hidden
     {
